@@ -1,0 +1,111 @@
+---
+title: "Barbell Lift Performace Prediction"
+author: "Sbf"
+date: "Friday, February 20, 2015"
+output: html_document
+---
+
+**Goal of the Analysis**
+
+The project is to use data from accelerometers on the belt, forearm, arm, and dumbell of 6 participants. They were asked to perform barbell lifts correctly and incorrectly in 5 different ways. 
+
+Each exercise was graded on a scale of A to E for each participant. Readings of the sensors for 6 participants are available together with the grade for each exercise. The goal is to create a system that can correctly predict the grades of other participants on the basis of the sensor readings. 
+
+More information is available from the website here: http://groupware.les.inf.puc-rio.br/har (see the section on the Weight Lifting Exercise Dataset
+
+**Data Description and Cleaning**
+
+Two data sets are available : 
+
+1. The training data containing readings and grades for 6 participants - altogether 152 measurements for each of the 19 623 sets of readings. 
+
+https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv
+
+2. A test data set of 20 different users. The data has the same structure (152 variables per exercise) as the training data set but the grading is missing.
+
+https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv
+
+In the training data set several cleaning steps were necessary:
+
+- deleted the new-window == "yes" rows , all the factor variables that had only NAs in the "no" rows and the new_window column.
+ 
+- deleted all the numeric columns that contained only NAs  
+
+- deleted the time stamps, the variable X which was a counter, and the num_window variable.
+
+- user adelmo has no measurements in the fields "roll-forearm"  "pitch_forearm"
+"yaw_forearm" I eliminated him from the study as all others have valid values - still leaves 15407 measured exercises
+
+The final training set had 52 variables and 5 users and 15407 lines.
+
+To see patterns in the data I preprocessed the cleaned data set using principal components and ploted the first two principal components.
+
+```{r, echo=FALSE}
+library(ggplot2)
+g=ggplot(data=PCpml, aes(x=PC1, y=PC2, col=pml$user))
+g=g+labs(title="1st and 2nd Principal Components")
+g+geom_point()
+```
+
+This graph shows that each user has an individual style in doing the exercises and that the prediction success will probably depend on finding a number of users for the training set that map well the range of styles in the general population (aka a represenative sample of users)
+
+**Building a Predictive Model**
+
+I trained the model with random forests on the principal components. It delivered an Accuracy of 100% on the training set. 
+
+I also tested the model by randomy splitting the training set into a 60% set with which I trained the model and a 40% set on which I tested the predictions using the following script:
+
+```{r}
+validate=function(y,train.data, percent){
+  len=dim(train.data)[1]
+  test.index=sample(1:len,size=percent*len)
+  outp=y[-test.index]
+  model=train(outp~., data=train.data[-test.index,], method="rf")
+  pred=predict(model$finalModel, newdata=train.data[test.index,])
+  confusionMatrix(pred, y[test.index])
+}
+
+```
+
+The results were in the range of 98-97% Accuracy.
+
+** Testing the Model **
+
+I cleaned up the test set in the exactly same way as the training set and obtained the same 52 variables. 
+
+I generated the principal components, not by preprocessing the data in the same way but by using the rotation matrix calcuated for the training data set, using the function below.
+
+```{r}
+createPrincipalComponents =function(RotationMatrix, RawData){
+  #Center and scale the raw data
+  data.preproc=preProcess(RawData, method=c("center", "scale"))
+  Raw.cs=predict(data.preproc, newdata=RawData)
+  
+  #Multiply by the rotation matrix
+  PCdata= as.matrix(Raw.cs) %*% RotationMatrix
+  
+  #Return the matrix
+  return(PCdata)
+}
+```
+
+
+I used the principal components of the test data set as input for the prediction and generated the predictions.
+
+The result was quite disappointing, I had an Accuracy of about 75%.
+
+**Discussion**
+
+In order to get a view of what was going on I plotted the first and second principal components of the training and test data on the same graph.
+
+![Fig. 2](C:\Users\sbf\Downloads\TATSPC.jpeg).
+
+We can see that most of the points from the test set are within the ranges of the training set and these were correctly predicted by the method. However some points , especially the one with first PC of about -1 are outside the trained range and obviously can not be predicted.
+
+**Improvements**
+
+I trained and tested a simple random forest model with the same preprocessed training data and got an Accuracy of 95%, only missing the point with PC1 of -1.
+
+This suggests that the PCA was missing some features from the data set. One possible improvement would be to try the PCA model with more components retained (I only kept the first 20 PCs, that might have benn too low )
+
+It also seems that the indivudual styles of the participants have a large influence. As a further improvement I would suggest a careful selection of participants to get a representative sample in the training set.
