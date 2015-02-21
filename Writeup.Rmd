@@ -1,5 +1,5 @@
 ---
-title: "Barbell Lift Performace Prediction"
+title: "Barbell Lift Performance Prediction"
 author: "Sbf"
 date: "Friday, February 20, 2015"
 output: html_document
@@ -40,15 +40,15 @@ The final training set had 52 variables and 5 users and 15407 lines.
 
 To see patterns in the data I preprocessed the cleaned data set using principal components and ploted the first two principal components.
 
-![Fig. 2](.\PCVSU2.jpeg).
+![Fig. 1](.\PCVSU2.jpeg).
 
-This graph shows that each user has an individual style in doing the exercises and that the prediction success will probably depend on finding a number of users for the training set that map well the range of styles in the general population (aka a represenative sample of users)
+This graph shows that each user has an individual style in doing the exercises and that the prediction success will probably depend on finding a number of users for the training set that map well the range of styles in the general population (aka a representative sample of users)
 
 **Building a Predictive Model**
 
 I trained the model with random forests on the principal components. It delivered an Accuracy of 100% on the training set. 
 
-I also tested the model by randomy splitting the training set into a 60% set with which I trained the model and a 40% set on which I tested the predictions using the following script:
+I also tested the model by randomly splitting the training set into a 60% set with which I trained the model and a 40% set on which I tested the predictions using the following script:
 
 ```{r}
 validate=function(y,train.data, percent){
@@ -68,7 +68,7 @@ The results were in the range of 98-97% Accuracy.
 
 I cleaned up the test set in the exactly same way as the training set and obtained the same 52 variables. 
 
-I generated the principal components, not by preprocessing the data in the same way but by using the rotation matrix calcuated for the training data set, using the function below.
+I generated the principal components, not by preprocessing the data in the same way but by using the rotation matrix calculated for the training data set, using the function below.
 
 ```{r}
 createPrincipalComponents =function(RotationMatrix, RawData){
@@ -101,6 +101,6 @@ We can see that most of the points from the test set are within the ranges of th
 
 I trained and tested a simple random forest model with the same preprocessed training data and got an Accuracy of 95%, only missing the point with PC1 of -1.
 
-This suggests that the PCA was missing some features from the data set. One possible improvement would be to try the PCA model with more components retained (I only kept the first 20 PCs, that might have benn too low )
+This suggests that the PCA was missing some features from the data set. One possible improvement would be to try the PCA model with more components retained (I only kept the first 20 PCs, that might have been too low )
 
-It also seems that the indivudual styles of the participants have a large influence. As a further improvement I would suggest a careful selection of participants to get a representative sample in the training set.
+It also seems that the individual styles of the participants have a large influence. As a further improvement I would suggest a careful selection of participants to get a representative sample in the training set.
