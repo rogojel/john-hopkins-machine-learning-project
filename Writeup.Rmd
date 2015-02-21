@@ -62,7 +62,7 @@ validate=function(y,train.data, percent){
 
 ```
 
-The results were in the range of 98-97% Accuracy.
+The results were in the range of 98-97% Accuracy. Given the risk of overfitting my expectation for the out of sample error was to be about 95%.
 
 ** Testing the Model **
 
@@ -99,7 +99,7 @@ We can see that most of the points from the test set are within the ranges of th
 
 **Improvements**
 
-I trained and tested a simple random forest model with the same preprocessed training data and got an Accuracy of 95%, only missing the point with PC1 of -1.
+I trained and tested a simple random forest model with the same preprocessed training data. The Accuracy on the training data was 100%. The Accuracy on the test data was 95%, only missing the point with PC1 of -1.
 
 This suggests that the PCA was missing some features from the data set. One possible improvement would be to try the PCA model with more components retained (I only kept the first 20 PCs, that might have been too low )
 
