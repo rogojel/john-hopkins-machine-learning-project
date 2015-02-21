@@ -40,12 +40,7 @@ The final training set had 52 variables and 5 users and 15407 lines.
 
 To see patterns in the data I preprocessed the cleaned data set using principal components and ploted the first two principal components.
 
-```{r, echo=FALSE}
-library(ggplot2)
-g=ggplot(data=PCpml, aes(x=PC1, y=PC2, col=pml$user))
-g=g+labs(title="1st and 2nd Principal Components")
-g+geom_point()
-```
+![Fig. 2](.\PCVSU2.jpeg).
 
 This graph shows that each user has an individual style in doing the exercises and that the prediction success will probably depend on finding a number of users for the training set that map well the range of styles in the general population (aka a represenative sample of users)
 
@@ -98,7 +93,7 @@ The result was quite disappointing, I had an Accuracy of about 75%.
 
 In order to get a view of what was going on I plotted the first and second principal components of the training and test data on the same graph.
 
-![Fig. 2](C:\Users\sbf\Downloads\TATSPC.jpeg).
+![Fig. 2](.\TATSPC.jpeg).
 
 We can see that most of the points from the test set are within the ranges of the training set and these were correctly predicted by the method. However some points , especially the one with first PC of about -1 are outside the trained range and obviously can not be predicted.
 
